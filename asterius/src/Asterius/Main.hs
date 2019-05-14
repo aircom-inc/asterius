@@ -463,6 +463,7 @@ ahcDistMain logger task@Task {..} (final_m, err_msgs, report) = do
     withCurrentDirectory (takeDirectory out_wasm) $
     if bundle
       then do
+        putStrLn "BUNDLE: TRUE"
         logger $ "[INFO] Running " <> out_js
         callProcess "node" $
           ["--experimental-wasm-bigint" | debug] <>
