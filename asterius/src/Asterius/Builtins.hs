@@ -113,9 +113,16 @@ rtsAsteriusModule opts =
        <> threadPausedFunction opts
        <> dirtyMutVarFunction opts
        <> raiseExceptionHelperFunction opts
-       <> u_gencatFunction opts
-       <> u_iswalnumFunction opts
-       <> u_iswalphaFunction opts
+       <> mkUnicodeFunction opts "u_gencat"
+       <> mkUnicodeFunction opts "u_iswalnum"
+       <> mkUnicodeFunction opts "u_isalpha"
+       <> mkUnicodeFunction opts "u_iswupper"
+       <> mkUnicodeFunction opts "u_iswlower"
+       <> mkUnicodeFunction opts "u_tolower"
+       <> mkUnicodeFunction opts "u_toupper"
+       <> mkUnicodeFunction opts "u_totitle"
+       <> mkUnicodeFunction opts "u_iscontrol"
+       <> mkUnicodeFunction opts "u_isprint"
        <> barfFunction opts
        <> (if debug opts then generateRtsAsteriusDebugModule opts else mempty)
        -- | Add in the module that contain functions which need to be
@@ -228,6 +235,48 @@ rtsFunctionImports debug =
       { internalName = "__asterius_u_iswalnum"
       , externalModuleName = "Unicode"
       , externalBaseName = "u_iswalnum"
+      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+      }
+  , FunctionImport
+      { internalName = "__asterius_u_iswupper"
+      , externalModuleName = "Unicode"
+      , externalBaseName = "u_iswupper"
+      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+      }
+  , FunctionImport
+      { internalName = "__asterius_u_iswlower"
+      , externalModuleName = "Unicode"
+      , externalBaseName = "u_iswlower"
+      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+      }
+  , FunctionImport
+      { internalName = "__asterius_u_tolower"
+      , externalModuleName = "Unicode"
+      , externalBaseName = "u_tolower"
+      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+      }
+  , FunctionImport
+      { internalName = "__asterius_u_toupper"
+      , externalModuleName = "Unicode"
+      , externalBaseName = "u_toupper"
+      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+      }
+  , FunctionImport
+      { internalName = "__asterius_u_totitle"
+      , externalModuleName = "Unicode"
+      , externalBaseName = "u_totitle"
+      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+      }
+  , FunctionImport
+      { internalName = "__asterius_u_iscontrol"
+      , externalModuleName = "Unicode"
+      , externalBaseName = "u_iscontrol"
+      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+      }
+  , FunctionImport
+      { internalName = "__asterius_u_print"
+      , externalModuleName = "Unicode"
+      , externalBaseName = "u_isprint"
       , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
       }
   , FunctionImport
@@ -1196,6 +1245,18 @@ barfFunction _ =
   runEDSL "barf" $ do
     s <- param I64
     callImport "__asterius_barf" [convertUInt64ToFloat64 s]
+
+
+mkUnicodeFunction ::  BuiltinsOptions
+  -> SBS.ShortByteString -- ^ Name of the function
+  -> AsteriusModule
+mkUnicodeFunction _ name =
+  runEDSL (AsteriusEntitySymbol name) $ do
+    setReturnTypes [I64]
+    x <- param I64
+    y <- callImport' ("__asterius_" <> name) [convertUInt64ToFloat64 x] F64
+    emit $ truncUFloat64ToInt64 y
+
 
 u_gencatFunction _ =
   runEDSL "u_gencat" $ do
