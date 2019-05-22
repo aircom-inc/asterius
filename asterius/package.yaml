@@ -30,7 +30,7 @@ extra-source-files:
   - test/ghc-testsuite/**/*.hs
   - test/ghc-testsuite/**/*.stdout
   - test/exception/**/*.hs
-  - test/regression-60/**/*.hs
+  - test/regression60/**/*.hs
 
 data-files:
   - rts/*.mjs
@@ -245,9 +245,9 @@ tests:
       - stm
       - cassava
 
-  regression-60:
+  regression60:
     source-dirs: test
-    main: regression-60.hs
+    main: regression60.hs
     ghc-options: -threaded -rtsopts
     dependencies:
       - asterius
