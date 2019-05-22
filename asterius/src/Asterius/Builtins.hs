@@ -114,6 +114,8 @@ rtsAsteriusModule opts =
        <> dirtyMutVarFunction opts
        <> raiseExceptionHelperFunction opts
        <> u_gencatFunction opts
+       <> u_iswalnumFunction opts
+       <> u_iswalphaFunction opts
        <> barfFunction opts
        <> (if debug opts then generateRtsAsteriusDebugModule opts else mempty)
        -- | Add in the module that contain functions which need to be
@@ -214,6 +216,18 @@ rtsFunctionImports debug =
       { internalName = "__asterius_u_gencat"
       , externalModuleName = "Unicode"
       , externalBaseName = "u_gencat"
+      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+      }
+  , FunctionImport
+      { internalName = "__asterius_u_iswalpha"
+      , externalModuleName = "Unicode"
+      , externalBaseName = "u_iswalpha"
+      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+      }
+  , FunctionImport
+      { internalName = "__asterius_u_iswalnum"
+      , externalModuleName = "Unicode"
+      , externalBaseName = "u_iswalnum"
       , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
       }
   , FunctionImport
@@ -617,7 +631,7 @@ generateWrapperModule mod = mod {
 
 
 
-mainFunction, hsInitFunction, rtsApplyFunction, rtsEvalFunction, rtsEvalIOFunction, rtsEvalLazyIOFunction, rtsGetSchedStatusFunction, rtsCheckSchedStatusFunction, scheduleWaitThreadFunction, createThreadFunction, createGenThreadFunction, createIOThreadFunction, createStrictIOThreadFunction, allocatePinnedFunction, newCAFFunction, stgReturnFunction, getStablePtrWrapperFunction, deRefStablePtrWrapperFunction, freeStablePtrWrapperFunction, rtsMkBoolFunction, rtsMkDoubleFunction, rtsMkCharFunction, rtsMkIntFunction, rtsMkWordFunction, rtsMkPtrFunction, rtsMkStablePtrFunction, rtsGetBoolFunction, rtsGetDoubleFunction, loadI64Function, printI64Function, assertEqI64Function, printF32Function, printF64Function, strlenFunction, memchrFunction, memcpyFunction, memsetFunction, memcmpFunction, fromJSArrayBufferFunction, toJSArrayBufferFunction, fromJSStringFunction, fromJSArrayFunction, threadPausedFunction, dirtyMutVarFunction, raiseExceptionHelperFunction, barfFunction, u_gencatFunction ::
+mainFunction, hsInitFunction, rtsApplyFunction, rtsEvalFunction, rtsEvalIOFunction, rtsEvalLazyIOFunction, rtsGetSchedStatusFunction, rtsCheckSchedStatusFunction, scheduleWaitThreadFunction, createThreadFunction, createGenThreadFunction, createIOThreadFunction, createStrictIOThreadFunction, allocatePinnedFunction, newCAFFunction, stgReturnFunction, getStablePtrWrapperFunction, deRefStablePtrWrapperFunction, freeStablePtrWrapperFunction, rtsMkBoolFunction, rtsMkDoubleFunction, rtsMkCharFunction, rtsMkIntFunction, rtsMkWordFunction, rtsMkPtrFunction, rtsMkStablePtrFunction, rtsGetBoolFunction, rtsGetDoubleFunction, loadI64Function, printI64Function, assertEqI64Function, printF32Function, printF64Function, strlenFunction, memchrFunction, memcpyFunction, memsetFunction, memcmpFunction, fromJSArrayBufferFunction, toJSArrayBufferFunction, fromJSStringFunction, fromJSArrayFunction, threadPausedFunction, dirtyMutVarFunction, raiseExceptionHelperFunction, barfFunction, u_gencatFunction, u_iswalnumFunction, u_iswalphaFunction ::
      BuiltinsOptions -> AsteriusModule
 mainFunction BuiltinsOptions {} =
   runEDSL  "main" $ do
@@ -1188,6 +1202,21 @@ u_gencatFunction _ =
     setReturnTypes [I64]
     x <- param I64
     y <- callImport' "__asterius_u_gencat" [convertUInt64ToFloat64 x] F64
+    emit $ truncUFloat64ToInt64 y
+
+
+u_iswalphaFunction _ =
+  runEDSL "u_iswalpha" $ do
+    setReturnTypes [I64]
+    x <- param I64
+    y <- callImport' "__asterius_u_iswalpha" [convertUInt64ToFloat64 x] F64
+    emit $ truncUFloat64ToInt64 y
+
+u_iswalnumFunction _ =
+  runEDSL "u_iswalnum" $ do
+    setReturnTypes [I64]
+    x <- param I64
+    y <- callImport' "__asterius_u_iswalnum" [convertUInt64ToFloat64 x] F64
     emit $ truncUFloat64ToInt64 y
 
 getF64GlobalRegFunction ::

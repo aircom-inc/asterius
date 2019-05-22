@@ -7,10 +7,11 @@ import Data.Char
 foreign import ccall unsafe "u_gencat"
   wgencat :: Int -> Int
 
-foreign import ccall unsafe "print_i64" print_i64 :: Int -> IO ()
-
 main :: IO ()
 main = do
-   let x = wgencat 50 -- generalCategory '2'
-   print_i64 x
+   print (generalCategory '2') -- expected: Number
+   print (generalCategory 'a') -- expected: LowercaseLetter
+   print (generalCategory 'A') -- expected: UppercaseLetter
+   print (read "21" :: Int)
+
 
