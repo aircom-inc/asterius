@@ -31,24 +31,27 @@ export class Unicode {
         return code >= 'a'.charCodeAt(0) && code <= 'z'.charCodeAt(0);
     }
 
-    u_tolower(code) {
-        return code - 'A'.charCodeAt(0) + 'a'.charCodeAt(0);
+    u_towlower(code) {
+        if (code >= 'A'.charCodeAt(0) && code <= 'Z'.charCodeAt(0)) {
+            return code - 'A'.charCodeAt(0) + 'a'.charCodeAt(0);
+        }
+        return code;
     }
 
-    u_toupper(code) {
+    u_towupper(code) {
         return code - 'a'.charCodeAt(0) + 'A'.charCodeAt(0);
     }
 
-    u_totitle(code){
+    u_towtitle(code){
         return u_toupper(code);
     }
 
-    u_iscontrol(code) {
+    u_iswcntrl(code) {
         // TODO: is space(' ') a control character?
         return code < 32;
     }
 
-    u_isprint(code) {
+    u_iswprint(code) {
         return code >= 32;
     }
 }
