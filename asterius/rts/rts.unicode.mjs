@@ -46,8 +46,8 @@ export class Unicode {
         return u_toupper(code);
     }
 
+    // NOTE: iswcntrl, iswprint is not legal on character of code >= 128
     u_iswcntrl(code) {
-        // TODO: is space(' ') a control character?
         return code < 32;
     }
 
