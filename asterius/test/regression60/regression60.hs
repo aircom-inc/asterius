@@ -28,8 +28,3 @@ main = do
    assert_ "toupper of A" $ toUpper 'A' == 'A'
    assert_ "toupper of a" $ toUpper 'a' == 'A'
    assert_ "toupper of 1" $ toUpper '1' == '1'
-
-   assert_ "toupper of A" $ toUpper 'A' == 'A'
-   assert_ "toupper of a" $ toUpper 'a' == 'A'
-   assert_ "toupper of 1" $ toUpper '1' == '1'
-

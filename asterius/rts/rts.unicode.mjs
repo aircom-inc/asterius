@@ -4,7 +4,6 @@ export class Unicode {
     }
 
     u_gencat(code) {
-        console.log("code: ${code}");
         if (code >= 'A'.charCodeAt(0) && code <= 'Z'.charCodeAt(0)) {
             return 0; // Uppercase letter
         } else if (code >= 'a'.charCodeAt(0) && code <= 'z'.charCodeAt(0)) {
@@ -39,7 +38,10 @@ export class Unicode {
     }
 
     u_towupper(code) {
-        return code - 'a'.charCodeAt(0) + 'A'.charCodeAt(0);
+        if (code >= 'a'.charCodeAt(0) && code <= 'z'.charCodeAt(0)) {
+            return code - 'a'.charCodeAt(0) + 'A'.charCodeAt(0);
+        }
+        return code;
     }
 
     u_towtitle(code){
