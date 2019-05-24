@@ -23,11 +23,11 @@ intarrS as = "[" <> intercalate "," (map show as) <> "]"
 
 
 mk_u_iswcntrl :: String
-mk_u_iswcntrl = "u_iswcntrl(c) { var lookup = " <> intarrS iswcntrlArr <> " ;return lookup[c]; }"
+mk_u_iswcntrl = "u_iswcntrl(c) {\n\tvar lookup = " <> intarrS iswcntrlArr <> ";\n\treturn lookup[c];\n}"
 
 
 mk_u_iswprint :: String
-mk_u_iswprint = "u_iswprint(c) { var lookup = " <> intarrS iswprintArr <> " ;return lookup[c]; }"
+mk_u_iswprint = "u_iswprint(c) {\n\tvar lookup = " <> intarrS iswprintArr <> ";\n\treturn lookup[c];\n}"
 
 
 main :: IO ()
