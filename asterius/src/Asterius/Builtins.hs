@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE StrictData #-}
 {-# OPTIONS_GHC -Wno-overflowed-literals #-}
 
 module Asterius.Builtins
@@ -28,6 +27,7 @@ import Data.Functor
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import Data.String
 import Data.Word
 import qualified GhcPlugins as GHC
 import Language.Haskell.GHC.Toolkit.Constants
@@ -37,13 +37,20 @@ wasmPageSize :: Int
 wasmPageSize = 65536
 
 data BuiltinsOptions = BuiltinsOptions
-  { threadStateSize :: Int
+  { progName :: String
+  , threadStateSize :: Int
   , debug, hasMain :: Bool
   }
 
 defaultBuiltinsOptions :: BuiltinsOptions
 defaultBuiltinsOptions =
-  BuiltinsOptions {threadStateSize = 65536, debug = False, hasMain = True}
+  BuiltinsOptions
+    { progName =
+        error "Asterius.Builtins.defaultBuiltinsOptions: unknown progName"
+    , threadStateSize = 65536
+    , debug = False
+    , hasMain = True
+    }
 
 rtsAsteriusModuleSymbol :: AsteriusModuleSymbol
 rtsAsteriusModuleSymbol =
@@ -70,6 +77,27 @@ rtsAsteriusModule opts =
             , AsteriusStatics
                 { staticsType = Bytes
                 , asteriusStatics = [Serialized $ encodeStorable (0 :: Word64)]
+                })
+          , ( "n_capabilities"
+            , AsteriusStatics
+                { staticsType = ConstBytes
+                , asteriusStatics = [Serialized $ encodeStorable (1 :: Word32)]
+                })
+          , ( "enabled_capabilities"
+            , AsteriusStatics
+                { staticsType = ConstBytes
+                , asteriusStatics = [Serialized $ encodeStorable (1 :: Word32)]
+                })
+          , ( "prog_name"
+            , AsteriusStatics
+                { staticsType = ConstBytes
+                , asteriusStatics =
+                    [Serialized $ fromString (progName opts <> "\0")]
+                })
+          , ( "prog_argv"
+            , AsteriusStatics
+                { staticsType = ConstBytes
+                , asteriusStatics = [SymbolStatic "prog_name" 0]
                 })
           , ( "__asterius_pc"
             , AsteriusStatics
@@ -115,6 +143,11 @@ rtsAsteriusModule opts =
        <> dirtyMutVarFunction opts
        <> raiseExceptionHelperFunction opts
        <> barfFunction opts
+       <> getProgArgvFunction opts
+       <> suspendThreadFunction opts
+       <> resumeThreadFunction opts
+       <> performMajorGCFunction opts
+       <> performGCFunction opts
        <> (if debug opts then generateRtsAsteriusDebugModule opts else mempty)
        -- | Add in the module that contain functions which need to be
        -- | exposed to the outside world. So add in the module, and
@@ -611,7 +644,7 @@ generateWrapperModule mod = mod {
 
 
 
-mainFunction, hsInitFunction, rtsApplyFunction, rtsEvalFunction, rtsEvalIOFunction, rtsEvalLazyIOFunction, rtsGetSchedStatusFunction, rtsCheckSchedStatusFunction, scheduleWaitThreadFunction, createThreadFunction, createGenThreadFunction, createIOThreadFunction, createStrictIOThreadFunction, allocatePinnedFunction, newCAFFunction, stgReturnFunction, getStablePtrWrapperFunction, deRefStablePtrWrapperFunction, freeStablePtrWrapperFunction, rtsMkBoolFunction, rtsMkDoubleFunction, rtsMkCharFunction, rtsMkIntFunction, rtsMkWordFunction, rtsMkPtrFunction, rtsMkStablePtrFunction, rtsGetBoolFunction, rtsGetDoubleFunction, loadI64Function, printI64Function, assertEqI64Function, printF32Function, printF64Function, strlenFunction, memchrFunction, memcpyFunction, memsetFunction, memcmpFunction, fromJSArrayBufferFunction, toJSArrayBufferFunction, fromJSStringFunction, fromJSArrayFunction, threadPausedFunction, dirtyMutVarFunction, raiseExceptionHelperFunction, barfFunction ::
+mainFunction, hsInitFunction, rtsApplyFunction, rtsEvalFunction, rtsEvalIOFunction, rtsEvalLazyIOFunction, rtsGetSchedStatusFunction, rtsCheckSchedStatusFunction, scheduleWaitThreadFunction, createThreadFunction, createGenThreadFunction, createIOThreadFunction, createStrictIOThreadFunction, allocatePinnedFunction, newCAFFunction, stgReturnFunction, getStablePtrWrapperFunction, deRefStablePtrWrapperFunction, freeStablePtrWrapperFunction, rtsMkBoolFunction, rtsMkDoubleFunction, rtsMkCharFunction, rtsMkIntFunction, rtsMkWordFunction, rtsMkPtrFunction, rtsMkStablePtrFunction, rtsGetBoolFunction, rtsGetDoubleFunction, loadI64Function, printI64Function, assertEqI64Function, printF32Function, printF64Function, strlenFunction, memchrFunction, memcpyFunction, memsetFunction, memcmpFunction, fromJSArrayBufferFunction, toJSArrayBufferFunction, fromJSStringFunction, fromJSArrayFunction, threadPausedFunction, dirtyMutVarFunction, raiseExceptionHelperFunction, barfFunction, getProgArgvFunction, suspendThreadFunction, resumeThreadFunction, performMajorGCFunction, performGCFunction ::
      BuiltinsOptions -> AsteriusModule
 mainFunction BuiltinsOptions {} =
   runEDSL  "main" $ do
@@ -1194,6 +1227,32 @@ unicodeCBits = map
     , ("u_iswcntrl", [I64], [I64])
     , ("u_iswprint", [I64], [I64])
     ]
+
+getProgArgvFunction _ =
+  runEDSL "getProgArgv" $ do
+    [argc, argv] <- params [I64, I64]
+    storeI64 argc 0 $ constI64 1
+    storeI64 argv 0 $ symbol "prog_argv"
+
+suspendThreadFunction _ =
+  runEDSL "suspendThread" $ do
+    setReturnTypes [I64]
+    [reg, _] <- params [I64, I64]
+    emit reg
+
+resumeThreadFunction _ =
+  runEDSL "resumeThread" $ do
+    setReturnTypes [I64]
+    reg <- param I64
+    emit reg
+
+performMajorGCFunction _ =
+  runEDSL "performMajorGC" $
+  callImport
+    "__asterius_gcRootTSO"
+    [convertUInt64ToFloat64 $ getLVal $ global CurrentTSO]
+
+performGCFunction _ = runEDSL "performGC" $ call "performMajorGC" []
 
 getF64GlobalRegFunction ::
   BuiltinsOptions
