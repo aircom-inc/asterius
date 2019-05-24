@@ -10,6 +10,9 @@ bool2int :: Bool -> Int
 bool2int False = 0
 bool2int True = 1
 
+gencatArr :: [Int]
+gencatArr = map (fromEnum . generalCategory . toEnum) [0..255]
+
 iswcntrlArr :: [Int]
 iswcntrlArr = map (bool2int . isControl . chr) [0..255]
 
@@ -21,16 +24,17 @@ iswprintArr = map (bool2int . isControl . chr) [0..255]
 intarrS :: [Int] -> String
 intarrS as = "[" <> intercalate "," (map show as) <> "]"
 
-
-mk_u_iswcntrl :: String
-mk_u_iswcntrl = "u_iswcntrl(c) {\n\tvar lookup = " <> intarrS iswcntrlArr <> ";\n\treturn lookup[c];\n}"
-
-
-mk_u_iswprint :: String
-mk_u_iswprint = "u_iswprint(c) {\n\tvar lookup = " <> intarrS iswprintArr <> ";\n\treturn lookup[c];\n}"
-
+lookupS :: String -- ^ Function name
+  -> [Int] -- ^ Array to lookup
+  -> String
+lookupS fnname arr =
+  fnname <> "(i) {" <>
+  "\n\tvar lookup = " <> intarrS arr <> ";" <>
+  "\n\treturn lookup[c];" <>
+  "\n}"
 
 main :: IO ()
 main = do
-   putStrLn mk_u_iswcntrl
-   putStrLn mk_u_iswprint
+   putStrLn $ lookupS "u_gencat" gencatArr
+   putStrLn $ lookupS "u_iswcntrl" iswcntrlArr
+   putStrLn $ lookupS "u_iswprint" iswprintArr
