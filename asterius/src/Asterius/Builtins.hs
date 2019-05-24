@@ -114,16 +114,6 @@ rtsAsteriusModule opts =
        <> threadPausedFunction opts
        <> dirtyMutVarFunction opts
        <> raiseExceptionHelperFunction opts
-       -- <> mkUnicodeFunction opts "u_gencat"
-       -- <> mkUnicodeFunction opts "u_iswalnum"
-       -- <> mkUnicodeFunction opts "u_iswalpha"
-       -- <> mkUnicodeFunction opts "u_iswupper"
-       -- <> mkUnicodeFunction opts "u_iswlower"
-       -- <> mkUnicodeFunction opts "u_towlower"
-       -- <> mkUnicodeFunction opts "u_towupper"
-       -- <> mkUnicodeFunction opts "u_towtitle"
-       -- <> mkUnicodeFunction opts "u_iswcntrl"
-       -- <> mkUnicodeFunction opts "u_iswprint"
        <> barfFunction opts
        <> (if debug opts then generateRtsAsteriusDebugModule opts else mempty)
        -- | Add in the module that contain functions which need to be
@@ -220,66 +210,6 @@ rtsFunctionImports debug =
       , externalBaseName = "freeStablePtr"
       , functionType = FunctionType {paramTypes = [F64], returnTypes = []}
       }
----  , FunctionImport
----      { internalName = "__asterius_u_gencat"
----      , externalModuleName = "Unicode"
----      , externalBaseName = "u_gencat"
----      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
----      }
----  , FunctionImport
----      { internalName = "__asterius_u_iswalpha"
----      , externalModuleName = "Unicode"
----      , externalBaseName = "u_iswalpha"
----      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
----      }
----  , FunctionImport
----      { internalName = "__asterius_u_iswalnum"
----      , externalModuleName = "Unicode"
----      , externalBaseName = "u_iswalnum"
----      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
----      }
----  , FunctionImport
----      { internalName = "__asterius_u_iswupper"
----      , externalModuleName = "Unicode"
----      , externalBaseName = "u_iswupper"
----      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
----      }
----  , FunctionImport
----      { internalName = "__asterius_u_iswlower"
----      , externalModuleName = "Unicode"
----      , externalBaseName = "u_iswlower"
----      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
----      }
----  , FunctionImport
----      { internalName = "__asterius_u_towlower"
----      , externalModuleName = "Unicode"
----      , externalBaseName = "u_towlower"
----      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
----      }
----  , FunctionImport
----      { internalName = "__asterius_u_towupper"
----      , externalModuleName = "Unicode"
----      , externalBaseName = "u_towupper"
----      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
----      }
----  , FunctionImport
----      { internalName = "__asterius_u_towtitle"
----      , externalModuleName = "Unicode"
----      , externalBaseName = "u_towtitle"
----      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
----      }
----  , FunctionImport
----      { internalName = "__asterius_u_iswcntrl"
----      , externalModuleName = "Unicode"
----      , externalBaseName = "u_iswcntrl"
----      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
----      }
----  , FunctionImport
----      { internalName = "__asterius_u_iswprint"
----      , externalModuleName = "Unicode"
----      , externalBaseName = "u_iswprint"
----      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
----      }
   , FunctionImport
       { internalName = "printI64"
       , externalModuleName = "rts"
@@ -681,7 +611,7 @@ generateWrapperModule mod = mod {
 
 
 
-mainFunction, hsInitFunction, rtsApplyFunction, rtsEvalFunction, rtsEvalIOFunction, rtsEvalLazyIOFunction, rtsGetSchedStatusFunction, rtsCheckSchedStatusFunction, scheduleWaitThreadFunction, createThreadFunction, createGenThreadFunction, createIOThreadFunction, createStrictIOThreadFunction, allocatePinnedFunction, newCAFFunction, stgReturnFunction, getStablePtrWrapperFunction, deRefStablePtrWrapperFunction, freeStablePtrWrapperFunction, rtsMkBoolFunction, rtsMkDoubleFunction, rtsMkCharFunction, rtsMkIntFunction, rtsMkWordFunction, rtsMkPtrFunction, rtsMkStablePtrFunction, rtsGetBoolFunction, rtsGetDoubleFunction, loadI64Function, printI64Function, assertEqI64Function, printF32Function, printF64Function, strlenFunction, memchrFunction, memcpyFunction, memsetFunction, memcmpFunction, fromJSArrayBufferFunction, toJSArrayBufferFunction, fromJSStringFunction, fromJSArrayFunction, threadPausedFunction, dirtyMutVarFunction, raiseExceptionHelperFunction, barfFunction, u_gencatFunction, u_iswalnumFunction, u_iswalphaFunction ::
+mainFunction, hsInitFunction, rtsApplyFunction, rtsEvalFunction, rtsEvalIOFunction, rtsEvalLazyIOFunction, rtsGetSchedStatusFunction, rtsCheckSchedStatusFunction, scheduleWaitThreadFunction, createThreadFunction, createGenThreadFunction, createIOThreadFunction, createStrictIOThreadFunction, allocatePinnedFunction, newCAFFunction, stgReturnFunction, getStablePtrWrapperFunction, deRefStablePtrWrapperFunction, freeStablePtrWrapperFunction, rtsMkBoolFunction, rtsMkDoubleFunction, rtsMkCharFunction, rtsMkIntFunction, rtsMkWordFunction, rtsMkPtrFunction, rtsMkStablePtrFunction, rtsGetBoolFunction, rtsGetDoubleFunction, loadI64Function, printI64Function, assertEqI64Function, printF32Function, printF64Function, strlenFunction, memchrFunction, memcpyFunction, memsetFunction, memcmpFunction, fromJSArrayBufferFunction, toJSArrayBufferFunction, fromJSStringFunction, fromJSArrayFunction, threadPausedFunction, dirtyMutVarFunction, raiseExceptionHelperFunction, barfFunction ::
      BuiltinsOptions -> AsteriusModule
 mainFunction BuiltinsOptions {} =
   runEDSL  "main" $ do
@@ -1264,39 +1194,6 @@ unicodeCBits = map
     , ("u_iswcntrl", [I64], [I64])
     , ("u_iswprint", [I64], [I64])
     ]
-
-mkUnicodeFunction ::  BuiltinsOptions
-  -> SBS.ShortByteString -- ^ Name of the function
-  -> AsteriusModule
-mkUnicodeFunction _ name =
-  runEDSL (AsteriusEntitySymbol name) $ do
-    setReturnTypes [I64]
-    x <- param I64
-    y <- callImport' ("__asterius_" <> name) [convertUInt64ToFloat64 x] F64
-    emit $ truncUFloat64ToInt64 y
-
-
-u_gencatFunction _ =
-  runEDSL "u_gencat" $ do
-    setReturnTypes [I64]
-    x <- param I64
-    y <- callImport' "__asterius_u_gencat" [convertUInt64ToFloat64 x] F64
-    emit $ truncUFloat64ToInt64 y
-
-
-u_iswalphaFunction _ =
-  runEDSL "u_iswalpha" $ do
-    setReturnTypes [I64]
-    x <- param I64
-    y <- callImport' "__asterius_u_iswalpha" [convertUInt64ToFloat64 x] F64
-    emit $ truncUFloat64ToInt64 y
-
-u_iswalnumFunction _ =
-  runEDSL "u_iswalnum" $ do
-    setReturnTypes [I64]
-    x <- param I64
-    y <- callImport' "__asterius_u_iswalnum" [convertUInt64ToFloat64 x] F64
-    emit $ truncUFloat64ToInt64 y
 
 getF64GlobalRegFunction ::
   BuiltinsOptions
