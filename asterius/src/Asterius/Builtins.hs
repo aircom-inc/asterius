@@ -84,7 +84,8 @@ rtsAsteriusModule opts =
           ]
     , functionMap =
         Map.fromList $
-        map (\(func_sym, (_, func)) -> (func_sym, func)) byteStringCBits
+        map (\(func_sym, (_, func)) -> (func_sym, func))
+                (byteStringCBits <> unicodeCBits)
     }  <> mainFunction opts
        <> hsInitFunction opts
        <> scheduleWaitThreadFunction opts
@@ -113,16 +114,16 @@ rtsAsteriusModule opts =
        <> threadPausedFunction opts
        <> dirtyMutVarFunction opts
        <> raiseExceptionHelperFunction opts
-       <> mkUnicodeFunction opts "u_gencat"
-       <> mkUnicodeFunction opts "u_iswalnum"
-       <> mkUnicodeFunction opts "u_iswalpha"
-       <> mkUnicodeFunction opts "u_iswupper"
-       <> mkUnicodeFunction opts "u_iswlower"
-       <> mkUnicodeFunction opts "u_towlower"
-       <> mkUnicodeFunction opts "u_towupper"
-       <> mkUnicodeFunction opts "u_towtitle"
-       <> mkUnicodeFunction opts "u_iswcntrl"
-       <> mkUnicodeFunction opts "u_iswprint"
+       -- <> mkUnicodeFunction opts "u_gencat"
+       -- <> mkUnicodeFunction opts "u_iswalnum"
+       -- <> mkUnicodeFunction opts "u_iswalpha"
+       -- <> mkUnicodeFunction opts "u_iswupper"
+       -- <> mkUnicodeFunction opts "u_iswlower"
+       -- <> mkUnicodeFunction opts "u_towlower"
+       -- <> mkUnicodeFunction opts "u_towupper"
+       -- <> mkUnicodeFunction opts "u_towtitle"
+       -- <> mkUnicodeFunction opts "u_iswcntrl"
+       -- <> mkUnicodeFunction opts "u_iswprint"
        <> barfFunction opts
        <> (if debug opts then generateRtsAsteriusDebugModule opts else mempty)
        -- | Add in the module that contain functions which need to be
@@ -219,66 +220,66 @@ rtsFunctionImports debug =
       , externalBaseName = "freeStablePtr"
       , functionType = FunctionType {paramTypes = [F64], returnTypes = []}
       }
-  , FunctionImport
-      { internalName = "__asterius_u_gencat"
-      , externalModuleName = "Unicode"
-      , externalBaseName = "u_gencat"
-      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
-      }
-  , FunctionImport
-      { internalName = "__asterius_u_iswalpha"
-      , externalModuleName = "Unicode"
-      , externalBaseName = "u_iswalpha"
-      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
-      }
-  , FunctionImport
-      { internalName = "__asterius_u_iswalnum"
-      , externalModuleName = "Unicode"
-      , externalBaseName = "u_iswalnum"
-      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
-      }
-  , FunctionImport
-      { internalName = "__asterius_u_iswupper"
-      , externalModuleName = "Unicode"
-      , externalBaseName = "u_iswupper"
-      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
-      }
-  , FunctionImport
-      { internalName = "__asterius_u_iswlower"
-      , externalModuleName = "Unicode"
-      , externalBaseName = "u_iswlower"
-      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
-      }
-  , FunctionImport
-      { internalName = "__asterius_u_towlower"
-      , externalModuleName = "Unicode"
-      , externalBaseName = "u_towlower"
-      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
-      }
-  , FunctionImport
-      { internalName = "__asterius_u_towupper"
-      , externalModuleName = "Unicode"
-      , externalBaseName = "u_towupper"
-      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
-      }
-  , FunctionImport
-      { internalName = "__asterius_u_towtitle"
-      , externalModuleName = "Unicode"
-      , externalBaseName = "u_towtitle"
-      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
-      }
-  , FunctionImport
-      { internalName = "__asterius_u_iswcntrl"
-      , externalModuleName = "Unicode"
-      , externalBaseName = "u_iswcntrl"
-      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
-      }
-  , FunctionImport
-      { internalName = "__asterius_u_iswprint"
-      , externalModuleName = "Unicode"
-      , externalBaseName = "u_iswprint"
-      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
-      }
+---  , FunctionImport
+---      { internalName = "__asterius_u_gencat"
+---      , externalModuleName = "Unicode"
+---      , externalBaseName = "u_gencat"
+---      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+---      }
+---  , FunctionImport
+---      { internalName = "__asterius_u_iswalpha"
+---      , externalModuleName = "Unicode"
+---      , externalBaseName = "u_iswalpha"
+---      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+---      }
+---  , FunctionImport
+---      { internalName = "__asterius_u_iswalnum"
+---      , externalModuleName = "Unicode"
+---      , externalBaseName = "u_iswalnum"
+---      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+---      }
+---  , FunctionImport
+---      { internalName = "__asterius_u_iswupper"
+---      , externalModuleName = "Unicode"
+---      , externalBaseName = "u_iswupper"
+---      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+---      }
+---  , FunctionImport
+---      { internalName = "__asterius_u_iswlower"
+---      , externalModuleName = "Unicode"
+---      , externalBaseName = "u_iswlower"
+---      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+---      }
+---  , FunctionImport
+---      { internalName = "__asterius_u_towlower"
+---      , externalModuleName = "Unicode"
+---      , externalBaseName = "u_towlower"
+---      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+---      }
+---  , FunctionImport
+---      { internalName = "__asterius_u_towupper"
+---      , externalModuleName = "Unicode"
+---      , externalBaseName = "u_towupper"
+---      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+---      }
+---  , FunctionImport
+---      { internalName = "__asterius_u_towtitle"
+---      , externalModuleName = "Unicode"
+---      , externalBaseName = "u_towtitle"
+---      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+---      }
+---  , FunctionImport
+---      { internalName = "__asterius_u_iswcntrl"
+---      , externalModuleName = "Unicode"
+---      , externalBaseName = "u_iswcntrl"
+---      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+---      }
+---  , FunctionImport
+---      { internalName = "__asterius_u_iswprint"
+---      , externalModuleName = "Unicode"
+---      , externalBaseName = "u_iswprint"
+---      , functionType = FunctionType {paramTypes = [F64], returnTypes = [F64]}
+---      }
   , FunctionImport
       { internalName = "printI64"
       , externalModuleName = "rts"
@@ -504,7 +505,7 @@ rtsFunctionImports debug =
           , b <- ["8", "16"]
           ]
      else []) <>
-  map (fst . snd) byteStringCBits
+  map (fst . snd) (byteStringCBits <> unicodeCBits)
 
 rtsFunctionExports :: Bool -> Bool -> [FunctionExport]
 rtsFunctionExports debug has_main =
@@ -1246,6 +1247,23 @@ barfFunction _ =
     s <- param I64
     callImport "__asterius_barf" [convertUInt64ToFloat64 s]
 
+
+unicodeCBits :: [(AsteriusEntitySymbol, (FunctionImport, Function))]
+unicodeCBits = map
+    (\(func_sym, param_vts, ret_vts) ->
+       ( AsteriusEntitySymbol func_sym
+       , generateRTSWrapper "Unicode" func_sym param_vts ret_vts))
+    [ ("u_gencat", [I64], [I64])
+    , ("u_iswalpha", [I64], [I64])
+    , ("u_iswalnum", [I64], [I64])
+    , ("u_iswupper", [I64], [I64])
+    , ("u_iswlower", [I64], [I64])
+    , ("u_towlower", [I64], [I64])
+    , ("u_towupper", [I64], [I64])
+    , ("u_towtitle", [I64], [I64])
+    , ("u_iswcntrl", [I64], [I64])
+    , ("u_iswprint", [I64], [I64])
+    ]
 
 mkUnicodeFunction ::  BuiltinsOptions
   -> SBS.ShortByteString -- ^ Name of the function
